@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
-
 from IAModel.LLMModel import LLMModel
 from typing import Optional
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import json
 import shutil
@@ -93,7 +93,13 @@ class ModelManager:
 
 app = FastAPI()
 
-# Instancia del estado global
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Crear una función de ciclo de vida con lifespan
@@ -106,6 +112,7 @@ async def lifespan(app: FastAPI):
     # Proveer el estado global al contexto de la aplicación
     yield {"model_manager": model_manager}
     print("Aplicación cerrándose. Limpieza si es necesaria.")
+    model_manager.unload_model()
 
 
 # Crear la instancia de FastAPI con lifespan

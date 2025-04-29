@@ -4,9 +4,18 @@
   "description": "Llama 3 8B Instruct",
   "load_params": {
     "n_gpu_layers": 32,
-    "n_threads": 4
+    "n_threads": 8,
+    "n_ctx": 4096,
+    "use_mlock": true,
+    "n_batch": 512,
+    "flash_attn": true
   },
   "run_params": {
-    "max_tokens": 4098
+    "max_tokens": 1000,
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "min_p": 0.05,
+    "top_k": 40,
+    "repeat_penalty": 1.1
   }
 }

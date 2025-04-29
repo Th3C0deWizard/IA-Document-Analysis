@@ -1,6 +1,6 @@
 from IAModel.model import DocumentClassifier, DocumentExtractor, Model
 from llama_cpp import Llama
-import fitz  # PyMuPDF for PDF parsing
+import pdfplumber
 
 
 class LLMModel(Model, DocumentClassifier, DocumentExtractor):
@@ -63,7 +63,17 @@ class LLMModel(Model, DocumentClassifier, DocumentExtractor):
             raise ValueError(f"No text extracted from PDF: {pdf_path}")
 
         # Create a classification prompt
-        prompt = f"Classify the following document providing just the correspoding labels (words), example (billing, clinical history, scientific article, e.t.c):\n\n{pdf_text[:1000]}"
+        prompt = f"""<|begin_of_text|><|user|>
+        You are an expert document analyzer. Your task is to classify the document content provided below. Respond with labels separated by commas.
+
+        Instructions:
+        - Do not include any explanation.
+        - Use concise words.
+        - respond with labels only.
+
+        Document content:
+        \"\"\"{pdf_text}\"\"\"
+        <|end_of_text|><|assistant|>"""
         classification = self.run(prompt)
         return classification.strip()
 
@@ -82,19 +92,29 @@ class LLMModel(Model, DocumentClassifier, DocumentExtractor):
             raise ValueError(f"No text extracted from PDF: {pdf_path}")
 
         # Create an extraction prompt
-        prompt = f"Extract the relevant information from the following document and provide it in JSON format:\n\n{pdf_text[:1000]}"
+        prompt = f"""<|begin_of_text|><|user|>
+        You are an expert document analyzer. Your task is to extract the key information from the document content provided below.
+
+        Instructions:
+        - Do not include any explanation.
+        - Only respond with a JSON file. 
+
+        Document content:
+        \"\"\"{pdf_text}\"\"\"
+        <|end_of_text|><|assistant|>"""
+
         extraction = self.run(prompt)
         return extraction.strip()
 
     def _extract_text_from_pdf(self, pdf_path):
         """
-        Helper function to extract text from a PDF file using PyMuPDF (fitz).
+        Helper function to extract text from a PDF file using pdfplumber.
         """
         try:
-            with fitz.open(pdf_path) as pdf:
-                text = ""
-                for page in pdf:
-                    text += page.get_text()
+            text = ""
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages:
+                    text += page.extract_text() or ""  # Handle empty pages gracefully
             return text
         except Exception as e:
             print(f"Error extracting text from PDF '{pdf_path}': {e}")
