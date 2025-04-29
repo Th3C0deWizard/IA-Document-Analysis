@@ -1,0 +1,12 @@
+{
+  "name": "llama3",
+  "path": "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+  "description": "Llama 3 8B Instruct",
+  "load_params": {
+    "n_gpu_layers": 32,
+    "n_threads": 4
+  },
+  "run_params": {
+    "max_tokens": 4098
+  }
+}
