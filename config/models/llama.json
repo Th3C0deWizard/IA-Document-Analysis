@@ -11,7 +11,7 @@
     "flash_attn": true
   },
   "run_params": {
-    "max_tokens": 1000,
+    "max_tokens": -1,
     "temperature": 0.8,
     "top_p": 0.95,
     "min_p": 0.05,
