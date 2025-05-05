@@ -1,9 +1,6 @@
 from contextlib import asynccontextmanager
 from IAModel.LLMModel import LLMModel
-<<<<<<< HEAD
-=======
 from IAModel.DocBert import DocBERTModel
->>>>>>> 06279a6 (new function for extract pdf info)
 from typing import Optional
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
