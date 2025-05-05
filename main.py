@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from IAModel.LLMModel import LLMModel
+from IAModel.DocBert import DocBERTModel
 from typing import Optional
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,7 +23,7 @@ class ModelManager:
         Reads JSON files from the specified directory, parses them, and constructs LLMModel objects.
         """
         project_root = os.path.abspath(os.path.dirname(__file__))
-        directory = f"{project_root}/{self.MODELS_CONFIG_PATH}"
+        directory = f"{project_root}/{self.MODELS_CONFIG_PATH}/llms"
         try:
             for filename in os.listdir(directory):
                 if filename.endswith(".json"):
@@ -43,7 +44,7 @@ class ModelManager:
                         # Create an instance of LLMModel
                         model = LLMModel(
                             name=name,
-                            path=f"{project_root}/resources/models/{path}",
+                            path=f"{project_root}/resources/models/llms/{path}",
                             load_params=load_params,
                             run_params=run_params,
                             description=description,
@@ -58,6 +59,34 @@ class ModelManager:
     def initialize(self):
         print("Initializing model manager...")
         self.get_llms_from_dir()
+
+        # instanciate docbert Model
+        project_root = os.path.abspath(os.path.dirname(__file__))
+        docbert_config_path = os.path.join(
+            project_root, self.MODELS_CONFIG_PATH, "docbert.json"
+        )
+
+        try:
+            with open(docbert_config_path, "r") as file:
+                data = json.load(file)
+                name = data.get("name")
+                path = data.get("path")
+                description = data.get("description")
+                load_params = data.get("load_params")
+                run_params = data.get("run_params")
+                if not name or not path:
+                    raise ValueError("DocBERT config must include 'name' and 'path'")
+                model = DocBERTModel(
+                    name=name,
+                    path=os.path.join(project_root, "resources/models/", path),
+                    load_params=load_params,
+                    run_params=run_params,
+                    description=description,
+                )
+                self.models[name] = model
+                self.docClassifiers[name] = model
+        except Exception as e:
+            print(f"Error initializing DocBERT model: {e}")
 
     def load_model(self, model_name):
         model = self.models.get(model_name)
