@@ -119,3 +119,36 @@ class LLMModel(Model, DocumentClassifier, DocumentExtractor):
         except Exception as e:
             print(f"Error extracting text from PDF '{pdf_path}': {e}")
             raise
+
+    def _extract_text_and_boxes_from_pdf(self, pdf_path):
+        """
+        Helper function to extract text and bounding boxes from a PDF file using pdfplumber.
+        """
+        try:
+            text = []
+            quads = []
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages:
+                    for word in page.extract_words():
+                        text.append(word["text"])
+                        quads.append(
+                            [
+                                word["x0"],
+                                word["top"],
+                                word["x1"],
+                                word["top"],
+                                word["x1"],
+                                word["bottom"],
+                                word["x0"],
+                                word["bottom"],
+                            ]
+                        )
+            return {
+                "text": text,
+                "quads": quads,
+                "width": pdf.pages[0].width,
+                "height": pdf.pages[0].height,
+            }
+        except Exception as e:
+            print(f"Error extracting text and boxes from PDF '{pdf_path}': {e}")
+            raise
