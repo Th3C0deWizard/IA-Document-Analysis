@@ -87,13 +87,18 @@ class LLMModel(Model, DocumentClassifier, DocumentExtractor):
             )
 
         # Extract text from the PDF
-        pdf_text = self._extract_text_from_pdf(pdf_path)
+        pdf_text = self._extract_text_and_boxes_from_pdf(pdf_path)
         if not pdf_text:
             raise ValueError(f"No text extracted from PDF: {pdf_path}")
 
         # Create an extraction prompt
         prompt = f"""<|begin_of_text|><|user|>
-        You are an expert document analyzer. Your task is to extract the key information from the document content provided below.
+        You are an expert document analyzer. Your task is to extract the key information from the document content provided below. The document content will have the followig properties:
+        
+        - text: The text of a document page
+        - quads: The bounding boxes of the text in the document
+        - width: The width of the document
+        - height: The height of the document
 
         Instructions:
         - Do not include any explanation.

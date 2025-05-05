@@ -1,5 +1,9 @@
 from contextlib import asynccontextmanager
 from IAModel.LLMModel import LLMModel
+<<<<<<< HEAD
+=======
+from IAModel.DocBert import DocBERTModel
+>>>>>>> 06279a6 (new function for extract pdf info)
 from typing import Optional
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -119,17 +123,6 @@ class ModelManager:
         return self.docExtractors.get(model_name) is not None
 
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
 # Crear una función de ciclo de vida con lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -145,6 +138,14 @@ async def lifespan(app: FastAPI):
 
 # Crear la instancia de FastAPI con lifespan
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Endpoint para listar los modelos disponibles con filtro por tarea
